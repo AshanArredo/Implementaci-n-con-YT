@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\Reproductor1.props" />
+</Project>

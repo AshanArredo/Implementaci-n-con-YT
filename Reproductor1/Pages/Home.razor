@@ -1,0 +1,419 @@
+﻿@page "/"
+@using Reproductor1.Models;
+@using Reproductor1.Services;
+
+<PageTitle>Inicio</PageTitle>
+
+@* Reproductor *@
+
+<div class="d-flex justify-content-center mb-2">
+    <iframe src="@YoutubeId" width="800" height="400" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<hr />
+@* Botones de reproducción *@
+
+<div class="d-flex justify-content-center mb-2">
+    <button @onclick="First" class="me-2 btn btn-primary">Primero</button>
+    <button @onclick="Before" class="me-2 btn btn-success">Anterior</button>
+    <button @onclick="Next" class="me-2 btn btn-danger">Siguiente</button>
+    <button @onclick="Last" class="me-2 btn btn-warning">Final</button>
+</div>
+
+<p>@Mensaje</p>
+
+<hr />
+
+@* Opciones de agregar *@
+<div class="row">
+    <input type="text" class="form-control mb-2" @bind-value="YoutubeLink" placeholder="URL del video de YouTube" />
+</div>
+<div class="d-flex justify-content-center mb-2">
+    <button @onclick="SaveAtEnd" class="me-2 btn btn-primary">Agregar al final</button>
+    <button @onclick="Save" class="me-2 btn btn-secondary">Agregar al inicio</button>
+    <button @onclick="ToggleMostrarCampoUrlAntes" class="me-2 btn btn-dark">Agregar antes de dato X</button>
+    <button @onclick="ToggleMostrarCampoUrlDespues" class="me-2 btn btn-dark">Agregar después de dato X</button>
+    <button @onclick="ToggleMostrarCampoPosicion" class="me-2 btn btn-danger">Insertar antes de posición</button>
+    <button @onclick="ToggleMostrarCampoPosicionDespues" class="me-2 btn btn-danger">Insertar después de posición</button>
+    <button @onclick="ToggleMostrarCampoPosicionInsertar" class="me-2 btn btn-danger">Insertar en posición</button>
+    <button @onclick="EliminarInicio" class="me-2 btn btn-danger">Eliminar al inicio</button>
+    <button @onclick="EliminarFinal" class="me-2 btn btn-danger">Eliminar al final</button>
+    <button @onclick="ToggleMostrarCampoEliminarAntes" class="me-2 btn btn-danger">Eliminar antes de dato X</button>
+    <button @onclick="ToggleMostrarCampoEliminarDespues" class="me-2 btn btn-danger">Eliminar despues de dato X</button>
+    <button @onclick="ToggleMostrarCampoEliminarAntesPosicion" class="me-2 btn btn-danger">Eliminar antes de posición</button>
+    <button @onclick="ToggleMostrarCampoEliminarDespuesPosicion" class="me-2 btn btn-danger">Eliminar despues de posición</button>
+    <button @onclick="ToggleMostrarCampoEliminarEnPosicion" class="me-2 btn btn-danger">Eliminar en posición</button>
+    <button @onclick="Ordenar" class="me-2 btn btn-primary">Ordenar URL</button>
+</div>
+
+@* Campo de entrada para agregar antes de un nodo *@
+@if (MostrarCampoUrlAntes)
+{
+    <div class="row">
+        <input type="text" class="form-control mb-2" @bind-value="UrlParaAgregarAntes" placeholder="URL del nodo antes de agregar" />
+        <button class="btn btn-secondary" @onclick="SaveBeforeUrl">Agregar antes de dato X</button>
+    </div>
+}
+
+@* Campo de entrada para agregar después de un nodo *@
+@if (MostrarCampoUrlDespues)
+{
+    <div class="row">
+        <input type="text" class="form-control mb-2" @bind-value="UrlParaAgregarDespues" placeholder="URL del nodo después de agregar" />
+        <button class="btn btn-secondary" @onclick="SaveAfterNode">Agregar después de dato X</button>
+    </div>
+}
+
+@* Campo de entrada para agregar antes de posición *@
+@if (MostrarCampoPosicion)
+{
+    <div class="row">
+        <input type="number" class="form-control mb-2" @bind-value="PosicionNueva" placeholder="Posición del nuevo Nodo" />
+        <button class="btn btn-primary" @onclick="InsertBeforePosition">Insertar antes de posición</button>
+    </div>
+}
+
+@* Campo de entrada para agregar después de posición *@
+@if (MostrarCampoPosicionDespues)
+{
+    <div class="row">
+        <input type="number" class="form-control mb-2" @bind-value="PosicionNueva" placeholder="Posición del nuevo Nodo" />
+        <button class="btn btn-primary" @onclick="InsertAfterPosition">Insertar después de posición</button>
+    </div>
+}
+
+@if (MostrarCampoPosicionInsertar)
+{
+    <div class="row">
+        <input type="number" class="form-control mb-2" @bind="PosicionInsertar" placeholder="Posición del nuevo Nodo" />
+        <button class="btn btn-primary" @onclick="InsertarEnPosicion">Insertar en la posición</button>
+    </div>
+}
+
+@if (MostrarCampoEliminarAntes)
+{
+    <div class="row">
+        <input type="text" class="form-control mb-2" @bind="DatoEliminarAntes" placeholder="Dato antes del cual eliminar" />
+        <button @onclick="EliminarAntesDato" class="btn btn-danger">Eliminar antes del dato</button>
+    </div>
+}
+
+@if (MostrarCampoEliminarDespues)
+{
+    <div class="row">
+        <input type="text" class="form-control mb-2" @bind="DatoEliminarDespues" placeholder="Dato después del cual eliminar" />
+        <button @onclick="EliminarDespuesDato" class="btn btn-danger">Eliminar después del dato</button>
+    </div>
+}
+
+@if (MostrarCampoEliminarDespuesPosicion)
+{
+    <div class="row">
+        <input type="number" class="form-control mb-2" @bind="PosicionEliminarDespues" placeholder="Posición después de la cual eliminar" />
+        <button @onclick="EliminarDespuesPosicion" class="btn btn-danger">Eliminar después de la posición</button>
+    </div>
+}
+
+@if (MostrarCampoEliminarAntesPosicion)
+{
+    <div class="row">
+        <input type="number" class="form-control mb-2" @bind="PosicionEliminarAntes" placeholder="Posición antes de la cual eliminar" />
+        <button @onclick="EliminarAntesPosicion" class="btn btn-danger">Eliminar antes de la posición</button>
+    </div>
+
+    @if (MostrarCampoEliminarEnPosicion)
+    {
+        <div class="row">
+            <input type="number" class="form-control mb-2" @bind="PosicionEliminar" placeholder="Posición del nodo a eliminar" />
+            <button @onclick="EliminarEnPosicion" class="btn btn-danger">Eliminar en posición</button>
+        </div>
+    }
+
+}
+@if (MostrarUrlsOrdenados)
+{
+    <h3>URLs Ordenados</h3>
+    <ol>
+        @if (!lista.IsEmpty)
+        {
+            var nodoActual = lista.PrimerNodo;
+            while (nodoActual != null)
+            {
+                <li>@nodoActual.Informacion</li>
+                nodoActual = nodoActual.LigaSiguiente;
+            }
+        }
+    </ol>
+}
+
+
+
+
+@code {
+    DoubleLinkedList lista;
+
+    string YoutubeLink = string.Empty;
+    string YoutubeId = string.Empty;
+    string Mensaje = string.Empty;
+    string UrlParaAgregarAntes = string.Empty;
+    string UrlParaAgregarDespues = string.Empty;
+    bool MostrarCampoUrlAntes = false;
+    bool MostrarCampoUrlDespues = false;
+    int PosicionNueva = 0;
+    bool MostrarCampoPosicion = false;
+    bool MostrarCampoPosicionDespues = false;
+    bool MostrarCampoPosicionInsertar = false;
+    int PosicionInsertar = 0;
+    string DatoEliminarAntes = string.Empty;
+    bool MostrarCampoEliminarAntes = false;
+    string DatoEliminarDespues = string.Empty;
+    bool MostrarCampoEliminarDespues = false;
+    int PosicionEliminarDespues = 0;
+    bool MostrarCampoEliminarDespuesPosicion = false;
+    int PosicionEliminarAntes = 0;
+    bool MostrarCampoEliminarAntesPosicion = false;
+    int PosicionEliminar = 0;
+    bool MostrarCampoEliminarEnPosicion = false;
+    bool MostrarUrlsOrdenados = false;
+
+    protected override void OnInitialized()
+    {
+        lista = new DoubleLinkedList();
+    }
+
+    void PlayVideo()
+    {
+        if (lista.NodoActual is not null)
+        {
+            YoutubeLink = lista.NodoActual.Informacion;
+
+            var videoId = GetVideoId(YoutubeLink);
+
+            if (!string.IsNullOrEmpty(videoId))
+            {
+                YoutubeId = $"https://www.youtube.com/embed/{videoId}";
+            }
+        }
+    }
+
+    string GetVideoId(string link)
+    {
+        var uri = new Uri(link);
+        var query = uri.Query;
+        var queryparams = System.Web.HttpUtility.ParseQueryString(query);
+        var videoId = queryparams["v"];
+        return videoId;
+    }
+
+    void First()
+    {
+        lista.NodoActual = lista.PrimerNodo;
+        PlayVideo();
+    }
+
+    void Before()
+    {
+        lista.Anterior();
+        PlayVideo();
+    }
+
+    void Next()
+    {
+        lista.Siguiente();
+        PlayVideo();
+    }
+
+    void Last()
+    {
+        lista.NodoActual = lista.UltimoNodo;
+        PlayVideo();
+    }
+
+    void Save()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.AgregarNodoAlInicio(nuevoNodo);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+    }
+
+    void SaveAtEnd()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.AgregarNodoAlFinal(nuevoNodo);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+    }
+
+    void SaveBeforeUrl()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.AgregarNodoAntes(nuevoNodo, UrlParaAgregarAntes);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+        UrlParaAgregarAntes = string.Empty;
+    }
+
+    void SaveAfterNode()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.AgregarDespuesDeNodo(nuevoNodo, UrlParaAgregarDespues);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+        UrlParaAgregarDespues = string.Empty;
+    }
+
+    void InsertBeforePosition()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.InsertarAntesDePosicion(nuevoNodo, PosicionNueva);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+        PosicionNueva = 0;
+    }
+
+    void InsertAfterPosition()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.AgregarDespuesDePosicion(nuevoNodo, PosicionNueva);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+        PosicionNueva = 0;
+    }
+    //agregue
+    void InsertarEnPosicion()
+    {
+        var nuevoNodo = new Nodo(YoutubeLink);
+        Mensaje = lista.InsertarEnPosicion(nuevoNodo, PosicionInsertar);
+        PlayVideo();
+        YoutubeLink = string.Empty;
+        PosicionInsertar = 0;
+    }
+    
+    void EliminarInicio()
+    {
+        Mensaje = lista.EliminarAlInicio();
+        PlayVideo(); 
+    }
+
+    
+    void EliminarFinal()
+    {
+        Mensaje = lista.EliminarAlFinal();
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+    }
+    
+    void EliminarAntesDato()
+    {
+        Mensaje = lista.EliminarAntesDeDato(DatoEliminarAntes);
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+        DatoEliminarAntes = string.Empty;
+    }
+    
+    void EliminarDespuesDato()
+    {
+        Mensaje = lista.EliminarDespuesDeDato(DatoEliminarDespues);
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+        DatoEliminarDespues = string.Empty;
+    }
+    
+    void EliminarAntesPosicion()
+    {
+        Mensaje = lista.EliminarAntesDePosicion(PosicionEliminarAntes);
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+        PosicionEliminarAntes = 0;
+    }
+    
+    void EliminarDespuesPosicion()
+    {
+        Mensaje = lista.EliminarDespuesDePosicion(PosicionEliminarDespues);
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+        PosicionEliminarDespues = 0;
+    }
+    
+    void EliminarEnPosicion()
+    {
+        Mensaje = lista.EliminarEnPosicion(PosicionEliminar);
+        PlayVideo(); // Si se actualiza la lista, es posible que quieras actualizar el video actual también
+        PosicionEliminar = 0;
+    }
+    
+    void Ordenar()
+    {
+        Mensaje = lista.OrdenarUrls();
+        MostrarUrlsOrdenados = true;
+    }
+
+    void ToggleMostrarCampoUrlAntes()
+    {
+        MostrarCampoUrlAntes = !MostrarCampoUrlAntes;
+        MostrarCampoUrlDespues = false;
+        MostrarCampoPosicion = false;
+        MostrarCampoPosicionDespues = false;
+    }
+
+    void ToggleMostrarCampoUrlDespues()
+    {
+        MostrarCampoUrlDespues = !MostrarCampoUrlDespues;
+        MostrarCampoUrlAntes = false;
+        MostrarCampoPosicion = false;
+        MostrarCampoPosicionDespues = false;
+    }
+
+    void ToggleMostrarCampoPosicion()
+    {
+        MostrarCampoPosicion = !MostrarCampoPosicion;
+        MostrarCampoUrlAntes = false;
+        MostrarCampoUrlDespues = false;
+        MostrarCampoPosicionDespues = false;
+    }
+
+    void ToggleMostrarCampoPosicionDespues()
+    {
+        MostrarCampoPosicionDespues = !MostrarCampoPosicionDespues;
+        MostrarCampoUrlAntes = false;
+        MostrarCampoUrlDespues = false;
+        MostrarCampoPosicion = false;
+    }
+
+    
+    void ToggleMostrarCampoPosicionInsertar()
+    {
+        MostrarCampoPosicionInsertar = !MostrarCampoPosicionInsertar;
+        MostrarCampoUrlAntes = false;
+        MostrarCampoUrlDespues = false;
+        MostrarCampoPosicion = false;
+        MostrarCampoPosicionDespues = false;
+    }
+    
+    void ToggleMostrarCampoEliminarAntes()
+    {
+        MostrarCampoEliminarAntes = !MostrarCampoEliminarAntes;
+        // Asegúrate de ocultar otros campos de entrada si es necesario
+    }
+
+    
+    void ToggleMostrarCampoEliminarDespues()
+    {
+        MostrarCampoEliminarDespues = !MostrarCampoEliminarDespues;
+        // Asegúrate de ocultar otros campos de entrada si es necesario
+    }
+    
+    void ToggleMostrarCampoEliminarAntesPosicion()
+    {
+        MostrarCampoEliminarAntesPosicion = !MostrarCampoEliminarAntesPosicion;
+        // Asegúrate de ocultar otros campos de entrada si es necesario
+    }
+    
+    void ToggleMostrarCampoEliminarDespuesPosicion()
+    {
+        MostrarCampoEliminarDespuesPosicion = !MostrarCampoEliminarDespuesPosicion;
+        // Asegúrate de ocultar otros campos de entrada si es necesario
+    }
+    
+    void ToggleMostrarCampoEliminarEnPosicion()
+    {
+        MostrarCampoEliminarEnPosicion = !MostrarCampoEliminarEnPosicion;
+        // Asegúrate de ocultar otros campos de entrada si es necesario
+    }
+}
